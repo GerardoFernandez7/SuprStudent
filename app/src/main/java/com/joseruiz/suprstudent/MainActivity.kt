@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import com.joseruiz.suprstudent.screens.LoginScreen
 import com.joseruiz.suprstudent.screens.HomeScreen
 import com.joseruiz.suprstudent.ui.theme.SuprStudentTheme
+import com.joseruiz.suprstudent.screens.AcademicoScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +24,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     LoginScreen()
                     HomeScreen()
+                    //AcademicoScreen()
                 }
             }
         }
