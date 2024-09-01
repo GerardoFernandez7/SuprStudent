@@ -1,6 +1,5 @@
 package com.joseruiz.suprstudent.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +8,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,19 +67,83 @@ fun TopBar() {
 @Composable
 fun AddButton() {
     val context = LocalContext.current
-    Row( modifier = Modifier.fillMaxWidth()){
+    val showDialog = remember { mutableStateOf(false) }
+    val subject = remember { mutableStateOf("") }
+    val time = remember { mutableStateOf("") }
+    val description = remember { mutableStateOf("") }
+
+    Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = { /* Agregar una taskcard */ },
+            onClick = { showDialog.value = true },
             colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth(0.5f).padding(vertical = 15.dp)
-            ) {
+        ) {
             Text(text = "Agregar", color = Color.White)
         }
     }
 
+    //Modal
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Nueva Tarea") },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .background(Color.White, RoundedCornerShape(8.dp)),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextField(
+                        value = subject.value,
+                        onValueChange = { subject.value = it },
+                        label = { Text("Tarea") },
+                        modifier = Modifier.fillMaxWidth()
+
+                    )
+                    TextField(
+                        value = time.value,
+                        onValueChange = { time.value = it },
+                        label = { Text("Hora") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    TextField(
+                        value = description.value,
+                        onValueChange = { description.value = it },
+                        label = { Text("Descripción") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Aquí puedes manejar la lógica para agregar la TaskCard
+                        showDialog.value = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text("Agregar")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon)))
+                ) {
+                    Text("Cancelar")
+                }
+            },
+            shape = RoundedCornerShape(15.dp), // Forma del diálogo
+            containerColor = Color.White // Fondo del diálogo
+        )
+    }
 }
+
+
 
 @Composable
 fun TaskCard(subject: String, time: String, description: String, doneColor: Color) {
@@ -93,7 +157,7 @@ fun TaskCard(subject: String, time: String, description: String, doneColor: Colo
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
