@@ -1,5 +1,6 @@
 package com.joseruiz.suprstudent.screens
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,18 +21,8 @@ import com.joseruiz.suprstudent.R
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.top),
-            contentDescription = "Top",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .align(Alignment.TopCenter) // `align` ahora funciona correctamente dentro de `Box`
-                .padding(bottom = 60.dp) // Aumentar el espacio inferior
-        )
+fun ProfileScreen() {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -47,38 +38,46 @@ fun RegisterScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Registro",
-                    color = Color.White,
+                    text = "Perfil",
+                    color = Color.Black,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
 
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Logo",
+                    painter = painterResource(id = R.drawable.user),
+                    contentDescription = "User",
                     modifier = Modifier
                         .size(120.dp)
                         .align(Alignment.CenterVertically)
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
 
             Text(
-                text = "Ingresa los siguientes datos",
+                text = "Datos Usuario",
                 color = Color.Black,
-                fontSize = 18.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(bottom = 16.dp)
                     .align(Alignment.Start) // Alinear a la izquierda
-                    .padding(bottom = 50.dp) // Aumentar el espacio inferior
+                    .padding(bottom = 20.dp) // Aumentar el espacio inferior
             )
 
             // Campos de entrada
             TextField(
-                value = "", 
+                value = "",
+                onValueChange = { /* TODO */ },
+                label = { Text("Nombre Usuario") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            TextField(
+                value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Apellido Usuario") },
                 modifier = Modifier
@@ -113,17 +112,9 @@ fun RegisterScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
-                value = "",
-                onValueChange = { /* TODO */ },
-                label = { Text("Contraseña") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
 
-            Spacer(modifier = Modifier.height(60.dp))
+
+            Spacer(modifier = Modifier.height(70.dp))
 
             // Botón de registro
             Button(
@@ -135,11 +126,11 @@ fun RegisterScreen() {
                     .clip(RoundedCornerShape(12.dp))
             ) {
                 Text(
-                    text = "Registrarse",
+                    text = "Guardar",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
-    }}
+    }
