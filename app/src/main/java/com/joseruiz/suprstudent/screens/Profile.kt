@@ -46,7 +46,7 @@ fun ProfileScreen() {
                 )
 
                 Image(
-                    painter = painterResource(id = R.drawable.user),
+                    painter = painterResource(id = R.drawable.profile),
                     contentDescription = "User",
                     modifier = Modifier
                         .size(120.dp)
@@ -54,21 +54,18 @@ fun ProfileScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-
             Text(
                 text = "Datos Usuario",
                 color = Color.Black,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Normal,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
                     .align(Alignment.Start) // Alinear a la izquierda
-                    .padding(bottom = 20.dp) // Aumentar el espacio inferior
             )
 
             // Campos de entrada
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Nombre Usuario") },
@@ -76,7 +73,7 @@ fun ProfileScreen() {
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Apellido Usuario") },
@@ -85,7 +82,7 @@ fun ProfileScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Edad") },
@@ -94,7 +91,7 @@ fun ProfileScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Carné") },
@@ -103,7 +100,7 @@ fun ProfileScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Género") },
@@ -112,24 +109,24 @@ fun ProfileScreen() {
                     .padding(vertical = 8.dp)
             )
 
-
-
             Spacer(modifier = Modifier.height(70.dp))
 
-            // Botón de registro
+            // Botón de guardar
             Button(
                 onClick = { /* TODO: Agregar funcionalidad de registro */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7D1535)), // Color del botón
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF78203A)), // Color del botón
+                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .clip(RoundedCornerShape(12.dp))
+
             ) {
                 Text(
                     text = "Guardar",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
+
                 )
             }
         }

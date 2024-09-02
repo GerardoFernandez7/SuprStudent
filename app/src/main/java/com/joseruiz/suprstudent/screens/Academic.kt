@@ -48,7 +48,7 @@ fun TopBar() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(onClick = { /* Regresar */ }) {
-            Text(text = "Atrás", color = Color.Blue)
+            Text(text = "Atrás", color = Color(0xFF007AFF))
         }
         Spacer(modifier = Modifier.width(16.dp))
     }
@@ -77,7 +77,7 @@ fun AddButton() {
         Button(
             onClick = { showDialog.value = true },
             colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(10.dp),
             modifier = Modifier.fillMaxWidth(0.5f).padding(vertical = 15.dp)
         ) {
             Text(text = "Agregar", color = Color.White)
@@ -142,8 +142,6 @@ fun AddButton() {
         )
     }
 }
-
-
 
 @Composable
 fun TaskCard(subject: String, time: String, description: String, doneColor: Color) {

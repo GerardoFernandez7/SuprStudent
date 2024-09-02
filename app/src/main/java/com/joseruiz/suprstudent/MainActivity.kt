@@ -7,11 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.joseruiz.suprstudent.screens.LoginScreen
-import com.joseruiz.suprstudent.screens.HomeScreen
 import com.joseruiz.suprstudent.ui.theme.SuprStudentTheme
-import com.joseruiz.suprstudent.screens.AcademicoScreen
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,9 +18,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    LoginScreen()
-                    HomeScreen()
-                    //AcademicoScreen()
+
                 }
             }
         }

@@ -69,15 +69,15 @@ fun RegisterScreen() {
             Text(
                 text = "Ingresa los siguientes datos",
                 color = Color.Black,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(bottom = 16.dp)
                     .align(Alignment.Start) // Alinear a la izquierda
-                    .padding(bottom = 50.dp) // Aumentar el espacio inferior
+                    .padding(bottom = 10.dp) // Aumentar el espacio inferior
             )
 
             // Campos de entrada
-            TextField(
+            OutlinedTextField (
                 value = "", 
                 onValueChange = { /* TODO */ },
                 label = { Text("Apellido Usuario") },
@@ -86,7 +86,7 @@ fun RegisterScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Edad") },
@@ -95,7 +95,7 @@ fun RegisterScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Carné") },
@@ -104,7 +104,7 @@ fun RegisterScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Género") },
@@ -113,7 +113,7 @@ fun RegisterScreen() {
                     .padding(vertical = 8.dp)
             )
 
-            TextField(
+            OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Contraseña") },
@@ -128,11 +128,11 @@ fun RegisterScreen() {
             // Botón de registro
             Button(
                 onClick = { /* TODO: Agregar funcionalidad de registro */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7D1535)), // Color del botón
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF78203A)), // Color del botón
+                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .clip(RoundedCornerShape(12.dp))
             ) {
                 Text(
                     text = "Registrarse",
@@ -142,4 +142,5 @@ fun RegisterScreen() {
                 )
             }
         }
-    }}
+    }
+}
