@@ -17,10 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joseruiz.suprstudent.R
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
-@Preview(showBackground = true)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -46,7 +47,7 @@ fun HomeScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
-                    .padding(bottom = 18.dp),
+                    .padding(bottom = 50.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -65,15 +66,18 @@ fun HomeScreen() {
                     modifier = Modifier
                         .size(120.dp)
                         .align(Alignment.CenterVertically)
+                        .clickable {
+                            navController.navigate("perfil")
+                        }
                 )
             }
 
             // Menu
             Spacer(modifier = Modifier.height(24.dp))
 
-            MenuItem(imageResId = R.drawable.finanzas, onClick = { /* Navegar a Finanzas */ })
-            MenuItem(imageResId = R.drawable.academico, onClick = { /* Navegar a Académico */ })
-            MenuItem(imageResId = R.drawable.ejercicio, onClick = { /* Navegar a Ejercicio */ })
+            MenuItem(imageResId = R.drawable.finanzas, onClick = { navController.navigate("finanzas") })
+            MenuItem(imageResId = R.drawable.academico, onClick = { navController.navigate("academico") })
+            MenuItem(imageResId = R.drawable.ejercicio, onClick = { navController.navigate("ejercicio") })
 
         }
     }
@@ -95,4 +99,10 @@ fun MenuItem(imageResId: Int, onClick: () -> Unit) {
                 .clip(RoundedCornerShape(15.dp))
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewHomeScreen() {
+    HomeScreen(navController = rememberNavController())
 }

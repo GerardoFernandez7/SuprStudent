@@ -16,11 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.joseruiz.suprstudent.R
 
-@Preview(showBackground = true)
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.top),
@@ -29,7 +30,7 @@ fun RegisterScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .align(Alignment.TopCenter) // `align` ahora funciona correctamente dentro de `Box`
+                .align(Alignment.TopCenter)
                 .padding(bottom = 60.dp) // Aumentar el espacio inferior
         )
         Column(
@@ -41,7 +42,7 @@ fun RegisterScreen() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 18.dp),
+                    .padding(top = 24.dp, bottom = 50.dp),
 
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -80,7 +81,26 @@ fun RegisterScreen() {
             OutlinedTextField (
                 value = "", 
                 onValueChange = { /* TODO */ },
-                label = { Text("Apellido Usuario") },
+                label = { Text("Nombre de usuario") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+
+            OutlinedTextField (
+                value = "",
+                onValueChange = { /* TODO */ },
+                label = { Text("Correo electrónico") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+
+            OutlinedTextField (
+                value = "",
+                onValueChange = { /* TODO */ },
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -98,26 +118,7 @@ fun RegisterScreen() {
             OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
-                label = { Text("Carné") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-
-            OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
                 label = { Text("Género") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-
-            OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
-                label = { Text("Contraseña") },
-                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -127,7 +128,7 @@ fun RegisterScreen() {
 
             // Botón de registro
             Button(
-                onClick = { /* TODO: Agregar funcionalidad de registro */ },
+                onClick = { navController.navigate("login") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF78203A)), // Color del botón
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
@@ -143,4 +144,10 @@ fun RegisterScreen() {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewRegisterScreen() {
+    RegisterScreen(navController = rememberNavController())
 }

@@ -29,10 +29,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
-@Preview(showBackground = true)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     Box(
         modifier = Modifier
@@ -58,7 +59,7 @@ fun LoginScreen() {
             OutlinedTextField(
                 value = "",
                 onValueChange = { /* Acción para cambiar el email */ },
-                label = { Text("Email Address") },
+                label = { Text("Correo electrónico") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White),
@@ -76,7 +77,7 @@ fun LoginScreen() {
             OutlinedTextField(
                 value = "",
                 onValueChange = { /* Acción para cambiar la contraseña */ },
-                label = { Text("Password") },
+                label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -91,18 +92,33 @@ fun LoginScreen() {
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "¿No tienes una cuenta? Créala",
-                    modifier = Modifier
-                        .clickable { /* Acción de Logearse */ }
-                        .weight(1f),
-                    textAlign = TextAlign.Center,
+                    text = "¿No tienes una cuenta? ",
                     fontSize = 16.sp,
                     style = TextStyle(
-                        fontStyle = FontStyle.Italic // Aplicar cursiva
+                        fontStyle = FontStyle.Italic
+                    )
+                )
+                Text(
+                    text = "Créala!",
+                    modifier = Modifier
+                        .clickable { navController.navigate("register") }
+                        .drawBehind {
+                            val strokeWidth = 1.dp.toPx()
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                Color.Black,
+                                Offset(0f, y),
+                                Offset(size.width, y),
+                                strokeWidth
+                            )
+                        },
+                    fontSize = 16.sp,
+                    style = TextStyle(
+                        fontStyle = FontStyle.Italic
                     )
                 )
             }
@@ -110,14 +126,14 @@ fun LoginScreen() {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /* Acción para iniciar sesión */ },
+                onClick = { navController.navigate("home") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon)))
             ) {
-                Text(text = "Login", color = Color.White)
+                Text(text = "Login", color = Color.White, fontSize = 20.sp)
             }
 
             Spacer(modifier = Modifier.height(70.dp))
@@ -141,4 +157,10 @@ fun LoginScreen() {
                 .height(350.dp)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLoginScreen() {
+    LoginScreen(navController = rememberNavController())
 }

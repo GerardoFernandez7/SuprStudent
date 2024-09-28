@@ -68,15 +68,7 @@ fun ProfileScreen() {
             OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
-                label = { Text("Nombre Usuario") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-            OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
-                label = { Text("Apellido Usuario") },
+                label = { Text("Nombre de usuario") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -86,15 +78,6 @@ fun ProfileScreen() {
                 value = "",
                 onValueChange = { /* TODO */ },
                 label = { Text("Edad") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-
-            OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
-                label = { Text("Carné") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)

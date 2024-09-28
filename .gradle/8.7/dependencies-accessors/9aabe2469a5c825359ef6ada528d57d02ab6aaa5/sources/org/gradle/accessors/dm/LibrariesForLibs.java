@@ -334,6 +334,7 @@ public class LibrariesForLibs extends AbstractExternalDependencyFactory {
 
     public static class VersionAccessors extends VersionFactory  {
 
+        private final NavigationVersionAccessors vaccForNavigationVersionAccessors = new NavigationVersionAccessors(providers, config);
         public VersionAccessors(ProviderFactory providers, DefaultVersionCatalog config) { super(providers, config); }
 
         /**
@@ -425,6 +426,29 @@ public class LibrariesForLibs extends AbstractExternalDependencyFactory {
          * This version was declared in catalog libs.versions.toml
          */
         public Provider<String> getLifecycleRuntimeKtx() { return getVersion("lifecycleRuntimeKtx"); }
+
+        /**
+         * Group of versions at <b>versions.navigation</b>
+         */
+        public NavigationVersionAccessors getNavigation() {
+            return vaccForNavigationVersionAccessors;
+        }
+
+    }
+
+    public static class NavigationVersionAccessors extends VersionFactory  {
+
+        public NavigationVersionAccessors(ProviderFactory providers, DefaultVersionCatalog config) { super(providers, config); }
+
+        /**
+         * Version alias <b>navigation.compose</b> with value <b>2.5.3</b>
+         * <p>
+         * If the version is a rich version and cannot be represented as a
+         * single version string, an empty string is returned.
+         * <p>
+         * This version was declared in catalog libs.versions.toml
+         */
+        public Provider<String> getCompose() { return getVersion("navigation.compose"); }
 
     }
 

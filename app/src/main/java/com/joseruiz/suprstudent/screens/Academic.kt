@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat
 import com.joseruiz.suprstudent.R
 
 @Composable
-fun AcademicoScreen() {
+fun AcademicScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -208,6 +208,6 @@ fun TaskCard(subject: String, time: String, description: String, doneColor: Colo
 
 @Preview(showBackground = true)
 @Composable
-fun AcademicoScreenPreview() {
-    AcademicoScreen()
+fun AcademicScreenPreview() {
+    AcademicScreen()
 }
