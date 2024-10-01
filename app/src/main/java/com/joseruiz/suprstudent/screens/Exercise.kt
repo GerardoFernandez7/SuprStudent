@@ -206,7 +206,7 @@ fun ExerciseFilterView(
         // Dropdown para músculo
         DropdownFilterMenu(
             label = "Muscle",
-            options = listOf("abdominals", "biceps", "chest", "glutes", "quadriceps", "triceps", "forearms", "calves"),
+            options = listOf("abdominals", "biceps", "chest", "glutes", "quadriceps", "triceps", "forearms", "calves", "legs"),
             selectedOption = selectedMuscle,
             onOptionSelected = { option ->
                 selectedMuscle = option
