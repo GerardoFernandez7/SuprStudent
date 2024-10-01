@@ -27,7 +27,6 @@ fun AcademicScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
-            .padding(top = 40.dp)
     ) {
 
         TopBar()
@@ -48,6 +47,9 @@ fun TopBar() {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
+        TextButton(onClick = { /* Regresar */ }) {
+            Text(text = "Atrás", color = Color(0xFF007AFF))
+        }
         Spacer(modifier = Modifier.width(16.dp))
     }
     Row(
