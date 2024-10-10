@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joseruiz.suprstudent.R
-import com.joseruiz.suprstudent.models.Exercise
+import com.joseruiz.suprstudent.data.Exercise
 
 fun getExercises(): List<Exercise> {
     return listOf(

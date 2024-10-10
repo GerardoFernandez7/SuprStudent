@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -65,5 +67,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // Navigation
     implementation(libs.androidx.navigation.compose)
+    // Room
+    implementation("androidx.room:room-runtime:2.5.1")
+    ksp("androidx.room:room-compiler:2.5.1")
+    implementation("androidx.room:room-ktx:2.5.1")
+    //<Firebase SDK dependencies>
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    //<Firebase SDK dependencies/>
+
 }

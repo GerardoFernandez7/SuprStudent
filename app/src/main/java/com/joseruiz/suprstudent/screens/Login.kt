@@ -11,6 +11,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -35,6 +39,8 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,8 +63,10 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(
-                value = "",
-                onValueChange = { /* Acción para cambiar el email */ },
+                value = email,
+                onValueChange = { newEmail ->
+                    email = newEmail
+                },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -75,8 +83,10 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = "",
-                onValueChange = { /* Acción para cambiar la contraseña */ },
+                value = password,
+                onValueChange = { newPassword ->
+                    password = newPassword
+                },
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier

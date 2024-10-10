@@ -1,4 +1,4 @@
-package com.joseruiz.suprstudent.models
+package com.joseruiz.suprstudent.data
 
 data class Exercise(
     val name: String,

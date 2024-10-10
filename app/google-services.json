@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573243678740",
+    "project_id": "suprstudent-6ef19",
+    "storage_bucket": "suprstudent-6ef19.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573243678740:android:d04f69fb7ba529cd9e8701",
+        "android_client_info": {
+          "package_name": "com.joseruiz.suprstudent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcIVrwgsbY0GsX7g4Ntk-0RToJExb7RZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

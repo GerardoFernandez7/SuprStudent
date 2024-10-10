@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +26,13 @@ import com.joseruiz.suprstudent.R
 
 @Composable
 fun RegisterScreen(navController: NavController) {
+    //var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    //var age by remember { mutableStateOf("") }
+    //var gender by remember { mutableStateOf("") }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.top),
@@ -77,15 +88,18 @@ fun RegisterScreen(navController: NavController) {
                     .padding(bottom = 10.dp) // Aumentar el espacio inferior
             )
 
+            /*
             // Campos de entrada
             OutlinedTextField (
-                value = "", 
-                onValueChange = { /* TODO */ },
+                value = username,
+                onValueChange = { newUsername ->
+                    username = newUsername
+                },
                 label = { Text("Nombre de usuario") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-            )
+            )*/
 
             OutlinedTextField (
                 value = "",
@@ -109,6 +123,17 @@ fun RegisterScreen(navController: NavController) {
             OutlinedTextField (
                 value = "",
                 onValueChange = { /* TODO */ },
+                label = { Text("Confirmar Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+
+            /*
+            OutlinedTextField (
+                value = "",
+                onValueChange = { /* TODO */ },
                 label = { Text("Edad") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -123,6 +148,8 @@ fun RegisterScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
+
+             */
 
             Spacer(modifier = Modifier.height(60.dp))
 
