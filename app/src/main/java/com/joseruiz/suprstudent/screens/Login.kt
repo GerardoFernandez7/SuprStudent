@@ -1,5 +1,6 @@
 package com.joseruiz.suprstudent.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +37,18 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.joseruiz.suprstudent.repository.LoginRepository
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    val loginRepository = remember { LoginRepository() }
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -136,14 +144,30 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { navController.navigate("home") },
+                onClick = {
+                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                        isLoading = true
+                        coroutineScope.launch {
+                            val result = loginRepository.signInWithEmailAndPassword(email, password)
+                            isLoading = false
+                            if (result != null) {
+                                Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+                                navController.navigate("home")
+                            } else {
+                                Toast.makeText(context, "Error en el inicio de sesión", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Por favor ingresa todos los campos", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon)))
             ) {
-                Text(text = "Login", color = Color.White, fontSize = 20.sp)
+                Text(text = if (isLoading) "Cargando..." else "Login", color = Color.White, fontSize = 20.sp)
             }
 
             Spacer(modifier = Modifier.height(70.dp))
