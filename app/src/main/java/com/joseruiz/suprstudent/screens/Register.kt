@@ -20,9 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.joseruiz.suprstudent.R
+import com.joseruiz.suprstudent.repository.register
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -102,8 +104,10 @@ fun RegisterScreen(navController: NavController) {
             )*/
 
             OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
+                value = email,
+                onValueChange = { newEmail ->
+                    email = newEmail
+                },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,8 +115,10 @@ fun RegisterScreen(navController: NavController) {
             )
 
             OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
+                value = password,
+                onValueChange = {  newPassword ->
+                    password = newPassword
+                },
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -121,8 +127,10 @@ fun RegisterScreen(navController: NavController) {
             )
 
             OutlinedTextField (
-                value = "",
-                onValueChange = { /* TODO */ },
+                value = confirmPassword,
+                onValueChange = { newConfirmPassword ->
+                    confirmPassword = newConfirmPassword
+                },
                 label = { Text("Confirmar Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -153,9 +161,10 @@ fun RegisterScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(60.dp))
 
+            val context = LocalContext.current
             // Botón de registro
             Button(
-                onClick = { navController.navigate("login") },
+                onClick = { register(email, password, confirmPassword, navController, context) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF78203A)), // Color del botón
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
