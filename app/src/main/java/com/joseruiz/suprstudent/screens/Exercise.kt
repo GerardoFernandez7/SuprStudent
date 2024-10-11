@@ -6,16 +6,35 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joseruiz.suprstudent.api.exerciseService
+import com.joseruiz.suprstudent.dao.ExerciseDao
+import com.joseruiz.suprstudent.data.AppDatabase
 import com.joseruiz.suprstudent.data.Exercise
 import com.joseruiz.suprstudent.models.ExerciseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen() {
-    val exerciseViewModel: ExerciseViewModel = viewModel()
+    //
+    val context = LocalContext.current
+    val exerciseDao: ExerciseDao = AppDatabase.getDatabase(context).exerciseDao()
+    val apiService = exerciseService
+
+    //val exerciseViewModel: ExerciseViewModel = viewModel()
+
+    val exerciseViewModel: ExerciseViewModel= viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return ExerciseViewModel(exerciseDao, apiService, context,"") as T
+            }
+        }
+    )
 
     // Estado para controlar el filtro actualmente activo
     var activeFilter by remember { mutableStateOf("muscle") }

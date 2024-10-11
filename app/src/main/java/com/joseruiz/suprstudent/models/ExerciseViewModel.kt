@@ -1,5 +1,6 @@
 package com.joseruiz.suprstudent.models
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -8,34 +9,41 @@ import androidx.lifecycle.viewModelScope
 import com.joseruiz.suprstudent.api.ApiService
 import com.joseruiz.suprstudent.api.exerciseService
 import com.joseruiz.suprstudent.data.Exercise
+import com.joseruiz.suprstudent.repository.ExerciseRepository
 
 import kotlinx.coroutines.launch
 
 
-class ExerciseViewModel : ViewModel() {
+class ExerciseViewModel(
+    val dao: Any,
+    val apiService: ApiService,
+    val context: Context,
+    val parametro: String
+) : ViewModel() {
 
     // Variables para ejercicios
     private val _exerciseState = mutableStateOf(ExerciseState())
     val exerciseState: State<ExerciseState> = _exerciseState
 
+    //LLamada al repositorio
+    private val exerciseRepository = ExerciseRepository(dao, apiService, context)
+
     /*************************MUSCLES********************************/
-    private fun fetchMuscle(muscle: String) {
+    private fun fetchMuscle(parametro: String) {
         viewModelScope.launch {
-            Log.d("ExerciseViewModel", "Fetching exercises for muscle: $muscle") // Log para depuración
-            try {
-                val response = exerciseService.getMuscles(muscle)  // Aquí ya obtenemos directamente la lista
-                Log.d("ExerciseViewModel", "Received response: $response") // Log para depuración
-                _exerciseState.value = _exerciseState.value.copy(
-                    list = response,  // Asigna directamente la lista a 'list'
-                    loading = false,
-                    error = null
-                )
-            } catch (e: Exception) {
-                Log.e("ExerciseViewModel", "Error fetching exercises: ${e.message}") // Log de error
-                _exerciseState.value = _exerciseState.value.copy(
-                    loading = false,
-                    error = "Error fetching exercises: ${e.message}"
-                )
+            exerciseRepository.getExercisesMuscle(parametro).collect { muscles ->
+                try {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        list = muscles,
+                        loading = false,
+                        error = null
+                    )
+                } catch (e: Exception) {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        loading = false,
+                        error = "Error fetching exercises: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -52,21 +60,21 @@ class ExerciseViewModel : ViewModel() {
 
     /*************************TYPES********************************/
 
-    private fun fetchType(type: String) {
+    private fun fetchType(parametro: String) {
         viewModelScope.launch {
-            try {
-                val response = exerciseService.getTypes(type)  // Aquí ya obtenemos directamente la lista
-                Log.d("ExerciseViewModel", "Received response: $response")
-                _exerciseState.value = _exerciseState.value.copy(
-                    list = response,
-                    loading = false,
-                    error = null
-                )
-            } catch (e: Exception) {
-                _exerciseState.value = _exerciseState.value.copy(
-                    loading = false,
-                    error = "Error fetching exercises: ${e.message}"
-                )
+            exerciseRepository.getExercisesType(parametro).collect { exercises ->
+                try {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        list = exercises,
+                        loading = false,
+                        error = null
+                    )
+                } catch (e: Exception) {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        loading = false,
+                        error = "Error fetching exercises: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -76,21 +84,21 @@ class ExerciseViewModel : ViewModel() {
     }
 
     /*************************difficulty********************************/
-    private fun fetchDifficulty(difficulty: String) {
+    private fun fetchDifficulty(parametro: String) {
         viewModelScope.launch {
-            try {
-                val response = exerciseService.getDifficulty(difficulty)  // Aquí ya obtenemos directamente la lista
-                Log.d("ExerciseViewModel", "Received response: $response")
-                _exerciseState.value = _exerciseState.value.copy(
-                    list = response,
-                    loading = false,
-                    error = null
-                )
-            } catch (e: Exception) {
-                _exerciseState.value = _exerciseState.value.copy(
-                    loading = false,
-                    error = "Error fetching exercises: ${e.message}"
-                )
+            exerciseRepository.getExercisesDifficulty(parametro).collect { exercises ->
+                try {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        list = exercises,
+                        loading = false,
+                        error = null
+                    )
+                } catch (e: Exception) {
+                    _exerciseState.value = _exerciseState.value.copy(
+                        loading = false,
+                        error = "Error fetching exercises: ${e.message}"
+                    )
+                }
             }
         }
     }
