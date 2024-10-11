@@ -16,6 +16,17 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        /***********************************/
+        // Usa findProperty para obtener la clave API de gradle.properties
+        val apiKey: String = project.findProperty("API_NINJAS_KEY") as String? ?: ""
+        buildConfigField("String", "API_NINJAS_KEY", "\"$apiKey\"")
+
+        buildFeatures {
+            buildConfig = true  // Habilitar BuildConfig
+            compose = true
+        }
+        /***************************************/
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -78,5 +89,16 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     //<Firebase SDK dependencies/>
+
+    //Compose ViewMode
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    //Network calls
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    //json to Kotlin object mapping
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Image loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation(kotlin("script-runtime"))
 
 }
