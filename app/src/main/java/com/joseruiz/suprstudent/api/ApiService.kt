@@ -36,4 +36,10 @@ val exerciseService = retrofit.create(ApiService::class.java)
 interface ApiService {
     @GET("exercises")
     suspend fun getMuscles(@Query("muscle") muscle: String): List<Exercise>
+
+    @GET("exercises")
+    suspend fun getTypes(@Query("type") type: String): List<Exercise>
+
+    @GET("exercises")
+    suspend fun getDifficulty(@Query("difficulty") difficulty: String): List<Exercise>
 }

@@ -1,38 +1,50 @@
 package com.joseruiz.suprstudent.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.joseruiz.suprstudent.R
 import com.joseruiz.suprstudent.data.Exercise
 import com.joseruiz.suprstudent.models.ExerciseViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen() {
-
     val exerciseViewModel: ExerciseViewModel = viewModel()
 
-    // Desencadena la llamada a la API al iniciar la pantalla
-    exerciseViewModel.onTypeMuscle("biceps")  // Simula la llamada para mostrar los ejercicios de bíceps al iniciar
+    // Estado para controlar el filtro actualmente activo
+    var activeFilter by remember { mutableStateOf("muscle") }
 
-    val exerciseState = exerciseViewModel.exerciseState.value
+    // Lista de opciones
+    val muscles = listOf(
+        "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms",
+        "glutes", "hamstrings", "lats", "lower_back", "middle_back", "neck", "quadriceps",
+        "traps", "triceps"
+    )
 
-    val viewState by exerciseViewModel.exerciseState
+    val types = listOf("cardio", "olympic_weightlifting", "plyometrics", "powerlifting", "strength", "stretching", "strongman")
+
+    val difficulties = listOf("beginner", "intermediate", "expert")
+
+    // Estado de selección de los menús
+    var selectedMuscle by remember { mutableStateOf(muscles[0]) }
+    var muscleExpanded by remember { mutableStateOf(false) }
+
+    var selectedType by remember { mutableStateOf(types[0]) }
+    var typeExpanded by remember { mutableStateOf(false) }
+
+    var selectedDifficulty by remember { mutableStateOf(difficulties[0]) }
+    var difficultyExpanded by remember { mutableStateOf(false) }
+
+    // Llama al ViewModel para cargar ejercicios cuando se abre la vista por primera vez
+    LaunchedEffect(Unit) {
+        exerciseViewModel.onTypeMuscle(selectedMuscle)  // Carga ejercicios por defecto con muscle
+    }
 
     // Comienza la interfaz
     Column(
@@ -41,20 +53,106 @@ fun ExerciseScreen() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Estado de carga o error
-        when {
 
-            viewState.loading -> {
-                CircularProgressIndicator()
+        // Menu de Muscles
+        ExposedDropdownMenuBox(
+            expanded = muscleExpanded,
+            onExpandedChange = { muscleExpanded = !muscleExpanded }
+        ) {
+            TextField(
+                value = selectedMuscle,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Muscle") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = muscleExpanded,
+                onDismissRequest = { muscleExpanded = false }
+            ) {
+                muscles.forEach { muscle ->
+                    DropdownMenuItem(onClick = {
+                        selectedMuscle = muscle
+                        muscleExpanded = false
+                        activeFilter = "muscle"
+                        exerciseViewModel.onTypeMuscle(muscle)
+                    }, text = { Text(muscle) })
+                }
             }
-            viewState.error != null -> {
-                Text("ERROR OCCURRED RECIPE: ${viewState.error}")
+        }
+
+        // Menu de Types
+        ExposedDropdownMenuBox(
+            expanded = typeExpanded,
+            onExpandedChange = { typeExpanded = !typeExpanded }
+        ) {
+            TextField(
+                value = selectedType,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Type") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = typeExpanded,
+                onDismissRequest = { typeExpanded = false }
+            ) {
+                types.forEach { type ->
+                    DropdownMenuItem(onClick = {
+                        selectedType = type
+                        typeExpanded = false
+                        activeFilter = "type"
+                        exerciseViewModel.onTypeType(type)
+                    }, text = { Text(type) })
+                }
             }
-            viewState.list.isNullOrEmpty() -> { // Manejo de lista nula o vacía
-                Text("No recipes found.")
+        }
+
+        // Menu de Difficulty
+        ExposedDropdownMenuBox(
+            expanded = difficultyExpanded,
+            onExpandedChange = { difficultyExpanded = !difficultyExpanded }
+        ) {
+            TextField(
+                value = selectedDifficulty,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Difficulty") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultyExpanded) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = difficultyExpanded,
+                onDismissRequest = { difficultyExpanded = false }
+            ) {
+                difficulties.forEach { difficulty ->
+                    DropdownMenuItem(onClick = {
+                        selectedDifficulty = difficulty
+                        difficultyExpanded = false
+                        activeFilter = "difficulty"
+                        exerciseViewModel.onTypeDifficulty(difficulty)
+                    }, text = { Text(difficulty) })
+                }
+            }
+        }
+
+        // Estado de carga o error
+        val exerciseState = exerciseViewModel.exerciseState.value
+
+        when {
+            exerciseState.loading && exerciseState.list.isNullOrEmpty() -> {
+                CircularProgressIndicator()  // Solo muestra el loading si la lista está vacía y aún está cargando
+            }
+            exerciseState.error != null -> {
+                Text("ERROR OCCURRED: ${exerciseState.error}")
+            }
+            exerciseState.list.isNullOrEmpty() -> {
+                Text("No exercises found.")
             }
             else -> {
-                // Muestra la lista de ejercicios
+                // Muestra la lista de ejercicios filtrados
                 LazyColumn {
                     items(exerciseState.list) { exercise ->
                         ExerciseItem(exercise) // Llama a un Composable para mostrar cada ejercicio

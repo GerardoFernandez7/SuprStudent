@@ -18,6 +18,7 @@ class ExerciseViewModel : ViewModel() {
     private val _exerciseState = mutableStateOf(ExerciseState())
     val exerciseState: State<ExerciseState> = _exerciseState
 
+    /*************************MUSCLES********************************/
     private fun fetchMuscle(muscle: String) {
         viewModelScope.launch {
             Log.d("ExerciseViewModel", "Fetching exercises for muscle: $muscle") // Log para depuración
@@ -39,6 +40,9 @@ class ExerciseViewModel : ViewModel() {
         }
     }
 
+    fun onTypeMuscle(muscle: String) {
+        fetchMuscle(muscle)
+    }
 
     data class ExerciseState(
         val loading: Boolean = true,
@@ -46,8 +50,53 @@ class ExerciseViewModel : ViewModel() {
         val error: String? = null
     )
 
-    fun onTypeMuscle(muscle: String) {
-        //_exerciseState.value = _exerciseState.value.copy(loading = true) // Comienza el estado de carga
-        fetchMuscle(muscle)
+    /*************************TYPES********************************/
+
+    private fun fetchType(type: String) {
+        viewModelScope.launch {
+            try {
+                val response = exerciseService.getTypes(type)  // Aquí ya obtenemos directamente la lista
+                Log.d("ExerciseViewModel", "Received response: $response")
+                _exerciseState.value = _exerciseState.value.copy(
+                    list = response,
+                    loading = false,
+                    error = null
+                )
+            } catch (e: Exception) {
+                _exerciseState.value = _exerciseState.value.copy(
+                    loading = false,
+                    error = "Error fetching exercises: ${e.message}"
+                )
+            }
+        }
     }
+
+    fun onTypeType(type: String) {
+        fetchType(type)
+    }
+
+    /*************************difficulty********************************/
+    private fun fetchDifficulty(difficulty: String) {
+        viewModelScope.launch {
+            try {
+                val response = exerciseService.getDifficulty(difficulty)  // Aquí ya obtenemos directamente la lista
+                Log.d("ExerciseViewModel", "Received response: $response")
+                _exerciseState.value = _exerciseState.value.copy(
+                    list = response,
+                    loading = false,
+                    error = null
+                )
+            } catch (e: Exception) {
+                _exerciseState.value = _exerciseState.value.copy(
+                    loading = false,
+                    error = "Error fetching exercises: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun onTypeDifficulty(difficulty: String) {
+        fetchDifficulty(difficulty)
+    }
+
 }
