@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun FinanceScreen() {
+fun FinanceScreen(navController: NavController) {
     var ingreso by remember { mutableStateOf("") }
     var gasto by remember { mutableStateOf("") }
 
@@ -41,7 +43,18 @@ fun FinanceScreen() {
             .padding(20.dp)
             .padding(top= 40.dp)
             .verticalScroll(scrollState) // Añadir el scroll vertical aquí
-    ) {
+    )
+    {
+        TextButton(
+            onClick = { navController.navigate("home") },
+            modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
+        ) {
+            Text(
+                text = "< Atrás",
+                color = Color(0xFF007AFF),
+                fontSize = 20.sp // Ajusta el tamaño de la fuente
+            )
+        }
         // Título
         Text(
             text = "Finanzas",
@@ -59,6 +72,8 @@ fun FinanceScreen() {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
+
+
 
         // Botón Agregar ingreso
         Button(
@@ -139,6 +154,7 @@ fun FinanceScreen() {
             ),
             totalAmount = "$5,639"
         )
+
     }
 }
 
@@ -245,9 +261,10 @@ fun CategoryItem(name: String, percentage: Float, color: Color) {
         Text(text = "${(percentage * 100).toInt()}%")
     }
 }
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewFinanzasView() {
-    FinanceScreen()
+fun FinanceScreenPreview() {
+    FinanceScreen(navController = rememberNavController())
 }
+
+

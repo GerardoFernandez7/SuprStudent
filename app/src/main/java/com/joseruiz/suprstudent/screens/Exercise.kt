@@ -5,13 +5,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.joseruiz.suprstudent.api.exerciseService
 import com.joseruiz.suprstudent.dao.ExerciseDao
 import com.joseruiz.suprstudent.data.AppDatabase
@@ -20,7 +26,7 @@ import com.joseruiz.suprstudent.models.ExerciseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExerciseScreen() {
+fun ExerciseScreen(navController: NavController) {
     //
     val context = LocalContext.current
     val exerciseDao: ExerciseDao = AppDatabase.getDatabase(context).exerciseDao()
@@ -72,6 +78,16 @@ fun ExerciseScreen() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        TextButton(
+            onClick = { navController.navigate("home")  },
+            modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
+        ) {
+            Text(
+                text = "< Atrás",
+                color = Color(0xFF007AFF),
+                fontSize = 20.sp // Ajusta el tamaño de la fuente
+            )
+        }
 
         // Menu de Muscles
         ExposedDropdownMenuBox(
@@ -198,4 +214,10 @@ fun ExerciseItem(exercise: Exercise) {
             Text(text = "Instrucciones: ${exercise.instructions}")
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExerciseScreenPreview() {
+    ExerciseScreen(navController = rememberNavController())
 }

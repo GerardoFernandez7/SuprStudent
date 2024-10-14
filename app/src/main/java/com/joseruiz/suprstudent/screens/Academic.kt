@@ -19,16 +19,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.joseruiz.suprstudent.R
 
 @Composable
-fun AcademicScreen() {
+fun AcademicScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
             .padding(top = 40.dp)
     ) {
+        TextButton(
+            onClick = {navController.navigate("home")  },
+            modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
+        ) {
+            Text(
+                text = "< Atrás",
+                color = Color(0xFF007AFF),
+                fontSize = 20.sp // Ajusta el tamaño de la fuente
+            )
+        }
 
         TopBar()
         Spacer(modifier = Modifier.height(16.dp))
@@ -201,11 +213,11 @@ fun TaskCard(subject: String, time: String, description: String, doneColor: Colo
     }
 }
 
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun AcademicScreenPreview() {
-    AcademicScreen()
+    AcademicScreen(navController = rememberNavController())
 }
+
+
+

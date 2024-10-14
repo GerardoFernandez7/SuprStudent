@@ -17,11 +17,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.joseruiz.suprstudent.R
 
-@Preview(showBackground = true)
+
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
 
         Column(
             modifier = Modifier
@@ -29,6 +31,16 @@ fun ProfileScreen() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+                TextButton(
+                    onClick = { navController.navigate("home")  },
+                    modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
+                ) {
+                    Text(
+                        text = "< Atrás",
+                        color = Color(0xFF007AFF),
+                        fontSize = 20.sp // Ajusta el tamaño de la fuente
+                    )
+                }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +108,7 @@ fun ProfileScreen() {
 
             // Botón de guardar
             Button(
-                onClick = { /* TODO: Agregar funcionalidad de registro */ },
+                onClick = {  navController.navigate("home")  },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF78203A)), // Color del botón
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
@@ -114,3 +126,8 @@ fun ProfileScreen() {
             }
         }
     }
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    ProfileScreen(navController = rememberNavController())
+}

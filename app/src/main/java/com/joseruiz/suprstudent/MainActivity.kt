@@ -34,17 +34,17 @@ class MainActivity : ComponentActivity() {
                     composable(route = "register") {
                         RegisterScreen(navController = navController)
                     }
-                    composable(route = "finanzas") {
-                        FinanceScreen()
+                    composable(route = "finance") {
+                        FinanceScreen(navController)
                     }
-                    composable(route = "academico") {
-                        AcademicScreen()
+                    composable(route = "academic") {
+                        AcademicScreen(navController)
                     }
-                    composable(route = "ejercicio") {
-                        ExerciseScreen()
+                    composable(route = "exercise") {
+                        ExerciseScreen(navController)
                     }
-                    composable(route = "perfil") {
-                        ProfileScreen()
+                    composable(route = "profile") {
+                        ProfileScreen(navController)
                     }
                 }
             }
