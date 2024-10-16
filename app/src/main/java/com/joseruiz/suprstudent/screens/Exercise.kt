@@ -27,17 +27,14 @@ import com.joseruiz.suprstudent.models.ExerciseViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen(navController: NavController) {
-    //
     val context = LocalContext.current
     val exerciseDao: ExerciseDao = AppDatabase.getDatabase(context).exerciseDao()
     val apiService = exerciseService
 
-    //val exerciseViewModel: ExerciseViewModel = viewModel()
-
-    val exerciseViewModel: ExerciseViewModel= viewModel(
+    val exerciseViewModel: ExerciseViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ExerciseViewModel(exerciseDao, apiService, context,"") as T
+                return ExerciseViewModel(exerciseDao, apiService, context, "") as T
             }
         }
     )
@@ -52,9 +49,9 @@ fun ExerciseScreen(navController: NavController) {
         "traps", "triceps"
     )
 
-    val types = listOf("cardio", "olympic_weightlifting", "plyometrics", "powerlifting", "strength", "stretching", "strongman")
+    val types = listOf("Sin seleccion","cardio", "olympic_weightlifting", "plyometrics", "powerlifting", "strength", "stretching", "strongman")
 
-    val difficulties = listOf("beginner", "intermediate", "expert")
+    val difficulties = listOf("Sin seleccion","beginner", "intermediate", "expert")
 
     // Estado de selección de los menús
     var selectedMuscle by remember { mutableStateOf(muscles[0]) }
@@ -79,7 +76,7 @@ fun ExerciseScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         TextButton(
-            onClick = { navController.navigate("home")  },
+            onClick = { navController.navigate("home") },
             modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
         ) {
             Text(
@@ -111,7 +108,9 @@ fun ExerciseScreen(navController: NavController) {
                         selectedMuscle = muscle
                         muscleExpanded = false
                         activeFilter = "muscle"
-                        exerciseViewModel.onTypeMuscle(muscle)
+                        exerciseViewModel.onTypeMuscle(muscle) // Reinicia filtros y carga ejercicios
+                        selectedType = types[0] // Reinicia tipo
+                        selectedDifficulty = difficulties[0] // Reinicia dificultad
                     }, text = { Text(muscle) })
                 }
             }
@@ -138,8 +137,7 @@ fun ExerciseScreen(navController: NavController) {
                     DropdownMenuItem(onClick = {
                         selectedType = type
                         typeExpanded = false
-                        activeFilter = "type"
-                        exerciseViewModel.onTypeType(type)
+                        exerciseViewModel.onTypeType(type) // Filtra por tipo
                     }, text = { Text(type) })
                 }
             }
@@ -166,8 +164,7 @@ fun ExerciseScreen(navController: NavController) {
                     DropdownMenuItem(onClick = {
                         selectedDifficulty = difficulty
                         difficultyExpanded = false
-                        activeFilter = "difficulty"
-                        exerciseViewModel.onTypeDifficulty(difficulty)
+                        exerciseViewModel.onTypeDifficulty(difficulty) // Filtra por dificultad
                     }, text = { Text(difficulty) })
                 }
             }
@@ -198,6 +195,8 @@ fun ExerciseScreen(navController: NavController) {
     }
 }
 
+
+
 @Composable
 fun ExerciseItem(exercise: Exercise) {
     Card(
@@ -215,6 +214,7 @@ fun ExerciseItem(exercise: Exercise) {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

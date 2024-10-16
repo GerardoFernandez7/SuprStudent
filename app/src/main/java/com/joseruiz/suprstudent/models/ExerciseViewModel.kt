@@ -13,7 +13,6 @@ import com.joseruiz.suprstudent.repository.ExerciseRepository
 
 import kotlinx.coroutines.launch
 
-
 class ExerciseViewModel(
     val dao: Any,
     val apiService: ApiService,
@@ -21,11 +20,15 @@ class ExerciseViewModel(
     val parametro: String
 ) : ViewModel() {
 
-    // Variables para ejercicios
     private val _exerciseState = mutableStateOf(ExerciseState())
     val exerciseState: State<ExerciseState> = _exerciseState
 
-    //LLamada al repositorio
+    private var localExerciseList: List<Exercise> = emptyList()
+
+    private var selectedMuscle: String = "Sin seleccion"
+    private var selectedType: String = "Sin seleccion"
+    private var selectedDifficulty: String = "Sin seleccion"
+
     private val exerciseRepository = ExerciseRepository(dao, apiService, context)
 
     /*************************MUSCLES********************************/
@@ -33,11 +36,8 @@ class ExerciseViewModel(
         viewModelScope.launch {
             exerciseRepository.getExercisesMuscle(parametro).collect { muscles ->
                 try {
-                    _exerciseState.value = _exerciseState.value.copy(
-                        list = muscles,
-                        loading = false,
-                        error = null
-                    )
+                    localExerciseList = muscles // Almacena la lista filtrada por músculo
+                    filterExercises() // Filtra inmediatamente después de obtener los músculos
                 } catch (e: Exception) {
                     _exerciseState.value = _exerciseState.value.copy(
                         loading = false,
@@ -49,7 +49,54 @@ class ExerciseViewModel(
     }
 
     fun onTypeMuscle(muscle: String) {
+        selectedMuscle = muscle
         fetchMuscle(muscle)
+    }
+
+    /*************************FILTERING********************************/
+    fun onTypeType(type: String) {
+        selectedType = type
+        filterExercises()
+    }
+
+    fun onTypeDifficulty(difficulty: String) {
+        selectedDifficulty = difficulty
+        filterExercises()
+    }
+
+    private fun filterExercises() {
+        var filteredList = localExerciseList
+
+        // Aplica el filtro de músculo
+        if (selectedMuscle.isNotBlank() && selectedMuscle != "Sin seleccion") {
+            filteredList = filteredList.filter { it.muscle == selectedMuscle }
+        }
+
+        // Aplica el filtro de tipo
+        if (selectedType != "Sin seleccion") {
+            filteredList = filteredList.filter { it.type == selectedType }
+        }
+
+        // Aplica el filtro de dificultad
+        if (selectedDifficulty != "Sin seleccion") {
+            filteredList = filteredList.filter { it.difficulty == selectedDifficulty }
+        }
+
+        // Verifica si la lista filtrada está vacía
+        if (filteredList.isEmpty()) {
+            _exerciseState.value = _exerciseState.value.copy(
+                list = filteredList,
+                loading = false,
+                error = "No existen ejercicios con los filtros solicitados" // Actualiza el mensaje de error si no hay ejercicios
+            )
+        } else {
+            // Actualiza el estado con la lista filtrada
+            _exerciseState.value = _exerciseState.value.copy(
+                list = filteredList,
+                loading = false,
+                error = null // Reinicia el mensaje de error si hay ejercicios
+            )
+        }
     }
 
     data class ExerciseState(
@@ -57,54 +104,4 @@ class ExerciseViewModel(
         val list: List<Exercise> = emptyList(),
         val error: String? = null
     )
-
-    /*************************TYPES********************************/
-
-    private fun fetchType(parametro: String) {
-        viewModelScope.launch {
-            exerciseRepository.getExercisesType(parametro).collect { exercises ->
-                try {
-                    _exerciseState.value = _exerciseState.value.copy(
-                        list = exercises,
-                        loading = false,
-                        error = null
-                    )
-                } catch (e: Exception) {
-                    _exerciseState.value = _exerciseState.value.copy(
-                        loading = false,
-                        error = "Error fetching exercises: ${e.message}"
-                    )
-                }
-            }
-        }
-    }
-
-    fun onTypeType(type: String) {
-        fetchType(type)
-    }
-
-    /*************************difficulty********************************/
-    private fun fetchDifficulty(parametro: String) {
-        viewModelScope.launch {
-            exerciseRepository.getExercisesDifficulty(parametro).collect { exercises ->
-                try {
-                    _exerciseState.value = _exerciseState.value.copy(
-                        list = exercises,
-                        loading = false,
-                        error = null
-                    )
-                } catch (e: Exception) {
-                    _exerciseState.value = _exerciseState.value.copy(
-                        loading = false,
-                        error = "Error fetching exercises: ${e.message}"
-                    )
-                }
-            }
-        }
-    }
-
-    fun onTypeDifficulty(difficulty: String) {
-        fetchDifficulty(difficulty)
-    }
-
 }
