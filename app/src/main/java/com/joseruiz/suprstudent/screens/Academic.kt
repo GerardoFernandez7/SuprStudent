@@ -1,5 +1,7 @@
 package com.joseruiz.suprstudent.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,8 +10,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +26,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.joseruiz.suprstudent.R
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun AcademicScreen(navController: NavController) {
@@ -81,6 +90,12 @@ fun AddButton() {
     val subject = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    var isUploading by remember { mutableStateOf(false) }
+    var uploadError by remember { mutableStateOf<String?>(null) }
+
+    // Obtener el usuario actual
+    val user = FirebaseAuth.getInstance().currentUser?.email
 
     Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1f))
@@ -94,16 +109,13 @@ fun AddButton() {
         }
     }
 
-    //Modal
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = { Text("Nueva Tarea") },
             text = {
                 Column(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .background(Color.White, RoundedCornerShape(8.dp)),
+                    modifier = Modifier.padding(10.dp).background(Color.White, RoundedCornerShape(8.dp)),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     TextField(
@@ -111,7 +123,6 @@ fun AddButton() {
                         onValueChange = { subject.value = it },
                         label = { Text("Tarea") },
                         modifier = Modifier.fillMaxWidth()
-
                     )
                     TextField(
                         value = time.value,
@@ -130,8 +141,23 @@ fun AddButton() {
             confirmButton = {
                 Button(
                     onClick = {
-                        // Aquí puedes manejar la lógica para agregar la TaskCard
-                        showDialog.value = false
+                        if (subject.value.isNotEmpty() && time.value.isNotEmpty()) {
+                            isUploading = true
+                            uploadError = null
+
+                            coroutineScope.launch {
+                                val result = saveTaskToFirebase(subject.value, time.value, description.value, user.toString())
+                                isUploading = false
+                                if (result == null) {
+                                    showDialog.value = false
+                                    Toast.makeText(context, "Tarea guardada", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    uploadError = result
+                                }
+                            }
+                        } else {
+                            uploadError = "La tarea y la hora son obligatorias."
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
                     modifier = Modifier.padding(end = 8.dp)
@@ -147,11 +173,39 @@ fun AddButton() {
                     Text("Cancelar")
                 }
             },
-            shape = RoundedCornerShape(15.dp), // Forma del diálogo
-            containerColor = Color.White // Fondo del diálogo
+            shape = RoundedCornerShape(15.dp),
+            containerColor = Color.White
         )
     }
+
+    if (isUploading) {
+        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+    }
+
+    uploadError?.let { error ->
+        Text(text = error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp))
+    }
 }
+
+// Función para guardar la tarea en Firestore
+suspend fun saveTaskToFirebase(subject: String, time: String, description: String, user: String): String? {
+    val firestore = FirebaseFirestore.getInstance()
+    return try {
+        val taskData = hashMapOf(
+            "tarea" to subject,
+            "hora" to time,
+            "descripcion" to description,
+            "usuario" to user
+        )
+
+        firestore.collection("academico").add(taskData).await()
+        null
+    } catch (e: Exception) {
+        Log.e("FirestoreError", "Error al guardar la tarea: ", e)
+        e.localizedMessage ?: "Error al guardar la tarea"
+    }
+}
+
 
 @Composable
 fun TaskCard(subject: String, time: String, description: String, doneColor: Color) {
