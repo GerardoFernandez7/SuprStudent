@@ -56,9 +56,18 @@ fun TopBar() {
     }
 }
 
-//Función que captura los datos de la base de datos y lo muestra en la vista
+
 @Composable
 fun AcademicScreen(navController: NavController) {
+
+    // Variable para controlar el estado de edición y mostrar el modal de edición
+    val showEditDialog = remember { mutableStateOf(false) }
+    val editSubject = remember { mutableStateOf("") }
+    val editTime = remember { mutableStateOf("") }
+    val editDescription = remember { mutableStateOf("") }
+    val editingTaskId = remember { mutableStateOf("") } // Guardar el ID de la tarea que se está editando
+    val context = LocalContext.current
+
     val db = FirebaseFirestore.getInstance()
     val userEmail = FirebaseAuth.getInstance().currentUser?.email
     val tasks = remember { mutableStateListOf<Map<String, Any>>() }
@@ -108,19 +117,120 @@ fun AcademicScreen(navController: NavController) {
         AddButton()
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar las TaskCards desde Firestore
+// Mostrar las TaskCards desde Firestore
         LazyColumn {
-            items(tasks) { task ->
+            // Filtra las tareas pendientes y completadas
+            val pendingTasks = tasks.filter { task -> !(task["estado"] as? Boolean ?: false) }
+            val completedTasks = tasks.filter { task -> task["estado"] as? Boolean ?: false }
+
+            // Agrega las tareas pendientes primero
+            items(pendingTasks) { task ->
                 TaskCard(
-                    taskId = task["id"] as String, // Pasamos el ID del documento para poder actualizarlo
+                    taskId = task["id"] as String,
                     subject = task["tarea"] as String,
                     time = task["hora"] as String,
                     description = task["descripcion"] as String,
-                    done = task["estado"] as? Boolean ?: false // Se obtiene el estado o false si no existe
+                    done = task["estado"] as? Boolean ?: false,
+                    onEditClick = { id, subject, time, description ->
+                        showEditDialog.value = true
+                        editSubject.value = subject
+                        editTime.value = time
+                        editDescription.value = description
+                        editingTaskId.value = id
+                    },
+                    onDeleteClick = { id ->
+                        db.collection("academico").document(id).delete()
+                            .addOnSuccessListener { Log.d("Firestore", "DocumentSnapshot successfully deleted!") }
+                            .addOnFailureListener { e -> Log.w("Firestore", "Error deleting document", e) }
+                    }
                 )
-
                 Spacer(modifier = Modifier.height(18.dp))
             }
+
+            // Luego, agrega las tareas completadas
+            items(completedTasks) { task ->
+                TaskCard(
+                    taskId = task["id"] as String,
+                    subject = task["tarea"] as String,
+                    time = task["hora"] as String,
+                    description = task["descripcion"] as String,
+                    done = task["estado"] as? Boolean ?: false,
+                    onEditClick = { id, subject, time, description ->
+                        showEditDialog.value = true
+                        editSubject.value = subject
+                        editTime.value = time
+                        editDescription.value = description
+                        editingTaskId.value = id
+                    },
+                    onDeleteClick = { id ->
+                        db.collection("academico").document(id).delete()
+                            .addOnSuccessListener { Log.d("Firestore", "DocumentSnapshot successfully deleted!") }
+                            .addOnFailureListener { e -> Log.w("Firestore", "Error deleting document", e) }
+                    }
+                )
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+        }
+
+
+        // Modal de edición
+        if (showEditDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showEditDialog.value = false },
+                title = { Text("Editar Tarea") },
+                text = {
+                    Column(
+                        modifier = Modifier.padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TextField(
+                            value = editSubject.value,
+                            onValueChange = { editSubject.value = it },
+                            label = { Text("Tarea") }
+                        )
+                        TextField(
+                            value = editTime.value,
+                            onValueChange = { editTime.value = it },
+                            label = { Text("Hora") }
+                        )
+                        TextField(
+                            value = editDescription.value,
+                            onValueChange = { editDescription.value = it },
+                            label = { Text("Descripción") }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
+                        onClick = {
+                            db.collection("academico").document(editingTaskId.value)
+                                .update(
+                                    mapOf(
+                                        "tarea" to editSubject.value,
+                                        "hora" to editTime.value,
+                                        "descripcion" to editDescription.value
+                                    )
+                                )
+                                .addOnSuccessListener {
+                                    Log.d("Firestore", "DocumentSnapshot successfully updated!")
+                                    showEditDialog.value = false
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w("Firestore", "Error updating document", e)
+                                }
+                        }
+                    ) {
+                        Text("Actualizar")
+                    }
+                },
+                dismissButton = {
+                    Button(colors = ButtonDefaults.buttonColors(containerColor = Color(ContextCompat.getColor(context, R.color.customMaroon))),
+                        onClick = { showEditDialog.value = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }
@@ -253,16 +363,19 @@ suspend fun saveTaskToFirebase(subject: String, time: String, description: Strin
 
 
 //Función de la vista de las cards
+
 @Composable
 fun TaskCard(
     taskId: String,
     subject: String,
     time: String,
     description: String,
-    done: Boolean
+    done: Boolean,
+    onEditClick: (String, String, String, String) -> Unit,
+    onDeleteClick: (String) -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
-    val buttonColor = if (done) Color(0xFF28a745) else Color(0xFFFFD700)
+    val buttonColor = if (done) Color(0xFF28a745) else Color(0xFFF1C40F)
 
     Card(
         shape = RoundedCornerShape(22.dp),
@@ -279,7 +392,7 @@ fun TaskCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column (modifier = Modifier.padding(vertical = 4.dp)) {
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
                     Text(text = subject, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(text = description, fontSize = 14.sp, color = Color.Gray)
                 }
@@ -293,7 +406,6 @@ fun TaskCard(
             ) {
                 Button(
                     onClick = {
-                        // Cambia el estado en Firestore al presionar el botón
                         db.collection("academico").document(taskId)
                             .update("estado", !done)
                     },
@@ -302,16 +414,15 @@ fun TaskCard(
                 ) {
                     Text(text = if (done) "Hecho" else "Pendiente", color = Color.White)
                 }
-                // Botones de edición y eliminación
                 Row {
-                    IconButton(onClick = { /* Editar una taskcard */ }) {
+                    IconButton(onClick = { onEditClick(taskId, subject, time, description) }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit",
                             modifier = Modifier.size(34.dp)
                         )
                     }
-                    IconButton(onClick = { /* Eliminar una taskcard */ }) {
+                    IconButton(onClick = { onDeleteClick(taskId) }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete",
@@ -323,6 +434,5 @@ fun TaskCard(
         }
     }
 }
-
 
 
