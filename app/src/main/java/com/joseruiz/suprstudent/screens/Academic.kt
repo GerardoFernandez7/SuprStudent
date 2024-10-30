@@ -4,13 +4,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,37 +36,6 @@ import com.joseruiz.suprstudent.R
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-@Composable
-fun AcademicScreen(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-            .padding(top = 40.dp)
-    ) {
-        TextButton(
-            onClick = {navController.navigate("home")  },
-            modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
-        ) {
-            Text(
-                text = "< Atrás",
-                color = Color(0xFF007AFF),
-                fontSize = 20.sp // Ajusta el tamaño de la fuente
-            )
-        }
-
-        TopBar()
-        Spacer(modifier = Modifier.height(16.dp))
-        //Boton de agregar un taskCard
-        AddButton()
-        Spacer(modifier = Modifier.height(16.dp))
-        //TaskCard quemadas
-        TaskCard(subject = "Matemática", time = "10:00 am", description = "Estudiar módulo 1 y 2", doneColor = Color(0xFF28a745))
-        Spacer(modifier = Modifier.height(18.dp))
-        TaskCard(subject = "POO", time = "15:00 pm", description = "Laboratorio no. 1", doneColor = Color(0xFF28a745))
-
-    }
-}
 
 @Composable
 fun TopBar() {
@@ -83,6 +56,76 @@ fun TopBar() {
     }
 }
 
+//Función que captura los datos de la base de datos y lo muestra en la vista
+@Composable
+fun AcademicScreen(navController: NavController) {
+    val db = FirebaseFirestore.getInstance()
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
+    val tasks = remember { mutableStateListOf<Map<String, Any>>() }
+
+    // Escucha activa a Firestore
+    LaunchedEffect(Unit) {
+        db.collection("academico")
+            .whereEqualTo("usuario", userEmail)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("Firestore", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    tasks.clear()
+                    for (document in snapshot) {
+                        val taskData = document.data.toMutableMap()
+                        taskData["id"] = document.id // Añade el ID del documento al mapa de datos
+                        tasks.add(taskData)
+                    }
+                }
+            }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+            .padding(top = 40.dp)
+    ) {
+        TextButton(
+            onClick = { navController.navigate("home") },
+            modifier = Modifier.align(Alignment.Start)
+        ) {
+            Text(
+                text = "< Atrás",
+                color = Color(0xFF007AFF),
+                fontSize = 20.sp
+            )
+        }
+
+        TopBar()
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón de agregar una TaskCard
+        AddButton()
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Mostrar las TaskCards desde Firestore
+        LazyColumn {
+            items(tasks) { task ->
+                TaskCard(
+                    taskId = task["id"] as String, // Pasamos el ID del documento para poder actualizarlo
+                    subject = task["tarea"] as String,
+                    time = task["hora"] as String,
+                    description = task["descripcion"] as String,
+                    done = task["estado"] as? Boolean ?: false // Se obtiene el estado o false si no existe
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+        }
+    }
+}
+
+//Función para abrir el modal, para guardar una actividad
 @Composable
 fun AddButton() {
     val context = LocalContext.current
@@ -195,7 +238,8 @@ suspend fun saveTaskToFirebase(subject: String, time: String, description: Strin
             "tarea" to subject,
             "hora" to time,
             "descripcion" to description,
-            "usuario" to user
+            "usuario" to user,
+            "estado" to false // La tarea se crea como pendiente
         )
 
         firestore.collection("academico").add(taskData).await()
@@ -207,14 +251,23 @@ suspend fun saveTaskToFirebase(subject: String, time: String, description: Strin
 }
 
 
+
+//Función de la vista de las cards
 @Composable
-fun TaskCard(subject: String, time: String, description: String, doneColor: Color) {
+fun TaskCard(
+    taskId: String,
+    subject: String,
+    time: String,
+    description: String,
+    done: Boolean
+) {
+    val db = FirebaseFirestore.getInstance()
+    val buttonColor = if (done) Color(0xFF28a745) else Color(0xFFFFD700)
+
     Card(
         shape = RoundedCornerShape(22.dp),
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
-
-
     ) {
         Column(
             modifier = Modifier
@@ -239,38 +292,36 @@ fun TaskCard(subject: String, time: String, description: String, doneColor: Colo
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /*Seleccionar si ya esta hecho la tarea o no */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = doneColor),
+                    onClick = {
+                        // Cambia el estado en Firestore al presionar el botón
+                        db.collection("academico").document(taskId)
+                            .update("estado", !done)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = "Hecho", color = Color.White)
+                    Text(text = if (done) "Hecho" else "Pendiente", color = Color.White)
                 }
+                // Botones de edición y eliminación
                 Row {
                     IconButton(onClick = { /* Editar una taskcard */ }) {
                         Icon(
-                            imageVector = Icons.Default.Edit, // Utiliza un ícono nativo
+                            imageVector = Icons.Default.Edit,
                             contentDescription = "Edit",
                             modifier = Modifier.size(34.dp)
                         )
                     }
                     IconButton(onClick = { /* Eliminar una taskcard */ }) {
                         Icon(
-                            imageVector = Icons.Default.Delete, // Utiliza un ícono nativo
+                            imageVector = Icons.Default.Delete,
                             contentDescription = "Delete",
                             modifier = Modifier.size(34.dp)
                         )
                     }
-
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AcademicScreenPreview() {
-    AcademicScreen(navController = rememberNavController())
 }
 
 
