@@ -1,6 +1,5 @@
 package com.joseruiz.suprstudent.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,16 +13,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.joseruiz.suprstudent.R
 import com.joseruiz.suprstudent.api.exerciseService
 import com.joseruiz.suprstudent.dao.ExerciseDao
 import com.joseruiz.suprstudent.data.AppDatabase
 import com.joseruiz.suprstudent.data.Exercise
 import com.joseruiz.suprstudent.models.ExerciseViewModel
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,14 +50,14 @@ fun ExerciseScreen(navController: NavController) {
 
     // Lista de opciones
     val muscles = listOf(
-        "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms",
+        "Sin selección", "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms",
         "glutes", "hamstrings", "lats", "lower_back", "middle_back", "neck", "quadriceps",
         "traps", "triceps"
     )
 
-    val types = listOf("Sin seleccion","cardio", "olympic_weightlifting", "plyometrics", "powerlifting", "strength", "stretching", "strongman")
+    val types = listOf("Sin selección", "cardio", "olympic_weightlifting", "plyometrics", "powerlifting", "strength", "stretching", "strongman")
 
-    val difficulties = listOf("Sin seleccion","beginner", "intermediate", "expert")
+    val difficulties = listOf("Sin selección", "beginner", "intermediate", "expert")
 
     // Estado de selección de los menús
     var selectedMuscle by remember { mutableStateOf(muscles[0]) }
@@ -87,18 +92,34 @@ fun ExerciseScreen(navController: NavController) {
             )
         }
 
+        val backgroundColor = Color(ContextCompat.getColor(context, R.color.customMaroon))
+
         // Menu de Muscles
         ExposedDropdownMenuBox(
             expanded = muscleExpanded,
             onExpandedChange = { muscleExpanded = !muscleExpanded }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = selectedMuscle,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Muscle") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded) },
-                modifier = Modifier.menuAnchor()
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded)
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Dropdown",
+                        tint = Color.White
+                    )
+                },
+                modifier = Modifier.menuAnchor(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = backgroundColor,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
             ExposedDropdownMenu(
                 expanded = muscleExpanded,
@@ -109,26 +130,41 @@ fun ExerciseScreen(navController: NavController) {
                         selectedMuscle = muscle
                         muscleExpanded = false
                         activeFilter = "muscle"
-                        exerciseViewModel.onTypeMuscle(muscle) // Reinicia filtros y carga ejercicios
-                        selectedType = types[0] // Reinicia tipo
-                        selectedDifficulty = difficulties[0] // Reinicia dificultad
+                        exerciseViewModel.onTypeMuscle(muscle)
+                        selectedType = types[0]
+                        selectedDifficulty = difficulties[0]
                     }, text = { Text(muscle) })
                 }
             }
         }
 
-        // Menu de Types
+        // Menu de Type
         ExposedDropdownMenuBox(
             expanded = typeExpanded,
             onExpandedChange = { typeExpanded = !typeExpanded }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = selectedType,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Type") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
-                modifier = Modifier.menuAnchor()
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded)
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Dropdown",
+                        tint = Color.White
+                    )
+                },
+                modifier = Modifier.menuAnchor(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = backgroundColor,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
             ExposedDropdownMenu(
                 expanded = typeExpanded,
@@ -149,13 +185,26 @@ fun ExerciseScreen(navController: NavController) {
             expanded = difficultyExpanded,
             onExpandedChange = { difficultyExpanded = !difficultyExpanded }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = selectedDifficulty,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Difficulty") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultyExpanded) },
-                modifier = Modifier.menuAnchor()
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultyExpanded)
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Dropdown",
+                        tint = Color.White
+                    )},
+                modifier = Modifier.menuAnchor(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = backgroundColor,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
             ExposedDropdownMenu(
                 expanded = difficultyExpanded,
@@ -196,8 +245,6 @@ fun ExerciseScreen(navController: NavController) {
     }
 }
 
-
-
 @Composable
 fun ExerciseItem(exercise: Exercise) {
     Card(
@@ -215,7 +262,6 @@ fun ExerciseItem(exercise: Exercise) {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

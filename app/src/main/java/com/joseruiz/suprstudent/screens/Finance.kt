@@ -64,7 +64,7 @@ fun FinanceScreen(navController: NavController) {
         )
 
         // TextField para ingreso
-        TextField(
+        OutlinedTextField(
             value = ingreso,
             onValueChange = { ingreso = it },
             label = { Text("Ingreso") },
@@ -87,7 +87,7 @@ fun FinanceScreen(navController: NavController) {
         }
 
         // TextField para gasto
-        TextField(
+        OutlinedTextField(
             value = gasto,
             onValueChange = { gasto = it },
             label = { Text("Gasto") },
@@ -157,7 +157,6 @@ fun FinanceScreen(navController: NavController) {
 
     }
 }
-
 
 // Función personalizada para Checkbox de categoría
 @Composable
@@ -266,5 +265,3 @@ fun CategoryItem(name: String, percentage: Float, color: Color) {
 fun FinanceScreenPreview() {
     FinanceScreen(navController = rememberNavController())
 }
-
-
