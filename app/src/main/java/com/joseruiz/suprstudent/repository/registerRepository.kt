@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.joseruiz.suprstudent.data.User
+import kotlinx.coroutines.tasks.await
 
 fun register(email: String, password: String, confirmPassword: String, navController: NavController, context: Context) {
     if (email.trim().isNotEmpty() && password.trim().isNotEmpty() && confirmPassword.trim().isNotEmpty() && password == confirmPassword) {
@@ -48,4 +49,16 @@ private fun saveUserInFirestore(email: String, password: String){
         .addOnFailureListener { e ->
             println("Error al guardar el usuario en Firestore: ${e.message}")
         }
+}
+
+
+suspend fun getUserData(username: String): User? {
+    val db = FirebaseFirestore.getInstance()
+    return try {
+        val documentSnapshot = db.collection("users").document(username).get().await()
+        documentSnapshot.toObject(User::class.java)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
