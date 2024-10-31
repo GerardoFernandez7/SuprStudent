@@ -4,8 +4,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.joseruiz.suprstudent.data.User
 import kotlinx.coroutines.tasks.await
 
@@ -53,12 +55,28 @@ private fun saveUserInFirestore(email: String, password: String){
 
 
 suspend fun getUserData(username: String): User? {
-    val db = FirebaseFirestore.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
     return try {
-        val documentSnapshot = db.collection("users").document(username).get().await()
-        documentSnapshot.toObject(User::class.java)
+        val document = firestore.collection("users").document(username).get().await()
+        if (document.exists()) {
+            document.toObject(User::class.java)
+        } else {
+            null // El documento no existe
+        }
     } catch (e: Exception) {
-        e.printStackTrace()
-        null
+        Log.e("Firestore Error", "Error getting user data", e)
+        null // Manejo de errores
     }
+}
+
+suspend fun updateUserData(userId: String, userData: User) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").document(userId)
+        .set(userData)
+        .addOnSuccessListener {
+            Log.d("Firestore", "User data successfully updated!")
+        }
+        .addOnFailureListener { e ->
+            Log.w("Firestore", "Error updating user data", e)
+        }
 }
