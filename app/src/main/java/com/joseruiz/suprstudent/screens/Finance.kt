@@ -296,5 +296,5 @@ fun FinanceScreenPreview() {
     FinanceScreen(navController = rememberNavController())
 }
 
-e
+
 
