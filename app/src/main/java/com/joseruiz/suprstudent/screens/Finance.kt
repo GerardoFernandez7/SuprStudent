@@ -1,5 +1,6 @@
 package com.joseruiz.suprstudent.screens
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,63 +25,79 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import androidx.compose.runtime.rememberCoroutineScope
 
 @Composable
 fun FinanceScreen(navController: NavController) {
     var ingreso by remember { mutableStateOf("") }
     var gasto by remember { mutableStateOf("") }
-
-    // Variable para manejar la opción seleccionada
     var selectedOption by remember { mutableStateOf("") }
+    var ingresosTotal by remember { mutableStateOf(0.0) }
+    var egresosTotal by remember { mutableStateOf(mapOf<String, Double>()) }
 
-    // Agregar un estado para manejar el scroll
-    val scrollState = rememberScrollState()
+    val db = FirebaseFirestore.getInstance()
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
+    val coroutineScope = rememberCoroutineScope()
 
-    // Envuelve el contenido de la pantalla en una Column con scroll
+    // Se establece  un listener para los cambios en la base de datos
+    LaunchedEffect(userEmail) {
+        val userRef = db.collection("finanzas").document(userEmail.toString())
+        userRef.addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) {
+                Log.e("FinanceScreen", "Error al obtener los datos de Firestore: $error")
+                return@addSnapshotListener
+            }
+
+            // Actualizar los valores de ingresos y egresos cuando cambian
+            val currentIngresos = snapshot.getDouble("Ingresos") ?: 0.0
+            val currentEgresos = snapshot.get("Egresos") as? Map<String, Double> ?: mapOf(
+                "Shopping" to 0.0,
+                "Grocery" to 0.0,
+                "Bill Payment" to 0.0,
+                "Other" to 0.0
+            )
+
+            ingresosTotal = currentIngresos
+            egresosTotal = currentEgresos
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
-            .padding(top= 40.dp)
-            .verticalScroll(scrollState) // Añadir el scroll vertical aquí
-    )
-    {
+            .padding(top = 40.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         TextButton(
             onClick = { navController.navigate("home") },
-            modifier = Modifier.align(Alignment.Start) // Alinea el botón en la esquina superior izquierda
+            modifier = Modifier.align(Alignment.Start)
         ) {
-            Text(
-                text = "< Atrás",
-                color = Color(0xFF007AFF),
-                fontSize = 20.sp // Ajusta el tamaño de la fuente
-            )
+            Text(text = "< Atrás", color = Color(0xFF007AFF), fontSize = 20.sp)
         }
-        // Título
-        Text(
-            text = "Finanzas",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+
+        Text(text = "Finanzas", fontSize = 32.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
 
         // TextField para ingreso
         OutlinedTextField(
             value = ingreso,
             onValueChange = { ingreso = it },
             label = { Text("Ingreso") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         )
 
-
-
-        // Botón Agregar ingreso
         Button(
-            onClick = { /* Acción para agregar ingreso */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+            onClick = {
+                coroutineScope.launch {
+                    saveAmountToFirebase(ingreso.toDouble(), "Ingreso", userEmail.toString())
+                    ingreso = ""
+                }
+            },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             colors = ButtonDefaults.buttonColors(Color(0xFF8E244D))
         ) {
             Text("Agregar")
@@ -91,52 +108,26 @@ fun FinanceScreen(navController: NavController) {
             value = gasto,
             onValueChange = { gasto = it },
             label = { Text("Gasto") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         )
 
-        // Checkboxes para seleccionar categoría
-        Text(
-            text = "Selecciona una categoría",
-            fontSize = 16.sp,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+        //Checkboxs
 
-        CategoryCheckbox(
-            label = "Shopping",
-            selectedOption = selectedOption,
-            onSelect = { selectedOption = "Shopping" }
-        )
-        CategoryCheckbox(
-            label = "Grocery",
-            selectedOption = selectedOption,
-            onSelect = { selectedOption = "Grocery" }
-        )
-        CategoryCheckbox(
-            label = "Bill payment",
-            selectedOption = selectedOption,
-            onSelect = { selectedOption = "Bill payment" }
-        )
-        CategoryCheckbox(
-            label = "Other",
-            selectedOption = selectedOption,
-            onSelect = { selectedOption = "Other" }
-        )
+        CategoryCheckbox("Shopping", selectedOption) { selectedOption = "Shopping" }
+        CategoryCheckbox("Grocery", selectedOption) { selectedOption = "Grocery" }
+        CategoryCheckbox("Bill Payment", selectedOption) { selectedOption = "Bill Payment" }
+        CategoryCheckbox("Other", selectedOption) { selectedOption = "Other" }
 
-        // Botón Agregar gasto
         Button(
             onClick = {
-                // Validar que se ha seleccionado una categoría antes de agregar el gasto
                 if (selectedOption.isNotEmpty()) {
-                    // Acción para agregar gasto con la categoría seleccionada
-                } else {
-                    // Mostrar un mensaje de error o advertencia si no se selecciona categoría
+                    coroutineScope.launch {
+                        saveAmountToFirebase(gasto.toDouble(), selectedOption, userEmail.toString())
+                        gasto = ""
+                    }
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             colors = ButtonDefaults.buttonColors(Color(0xFF8E244D))
         ) {
             Text("Agregar")
@@ -144,19 +135,54 @@ fun FinanceScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Gráfico de pastel con datos quemados
+        // Gráfico de pastel
         PieChart(
             data = listOf(
-                PieChartData("Shopping", 0.40f, Color(0xFF42A5F5)),
-                PieChartData("Grocery", 0.20f, Color(0xFFEF5350)),
-                PieChartData("Bill payment", 0.20f, Color(0xFFFFA726)),
-                PieChartData("Other", 0.20f, Color(0xFF66BB6A))
+                PieChartData("Shopping", (egresosTotal["Shopping"] ?: 0.0).toFloat() / (ingresosTotal.toFloat()), Color(0xFF42A5F5)),
+                PieChartData("Grocery", (egresosTotal["Grocery"] ?: 0.0).toFloat() / (ingresosTotal.toFloat()), Color(0xFFEF5350)),
+                PieChartData("Bill Payment", (egresosTotal["Bill Payment"] ?: 0.0).toFloat() / (ingresosTotal.toFloat()), Color(0xFFFFA726)),
+                PieChartData("Other", (egresosTotal["Other"] ?: 0.0).toFloat() / (ingresosTotal.toFloat()), Color(0xFF66BB6A))
             ),
-            totalAmount = "$5,639"
+            totalAmount = "$${ingresosTotal}"
         )
-
     }
 }
+//Funcion para guardar gastos e ingresos
+suspend fun saveAmountToFirebase(amount: Double, type: String, user: String) {
+    val firestore = FirebaseFirestore.getInstance()
+    try {
+        val docRef = firestore.collection("finanzas").document(user)
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            if (snapshot.exists()) {
+                val currentIngresos = snapshot.getDouble("Ingresos") ?: 0.0
+                val currentEgresos = snapshot.get("Egresos") as? Map<String, Double> ?: mapOf(
+                    "Shopping" to 0.0,
+                    "Grocery" to 0.0,
+                    "Bill Payment" to 0.0,
+                    "Other" to 0.0
+                )
+
+                if (type == "Ingreso") {
+                    transaction.update(docRef, "Ingresos", currentIngresos + amount)
+                } else if (currentEgresos.containsKey(type)) {
+                    val updatedEgresos = currentEgresos.toMutableMap()
+                    updatedEgresos[type] = updatedEgresos[type]?.plus(amount) ?: amount
+                    transaction.update(docRef, "Egresos", updatedEgresos)
+                } else {
+
+                }
+            } else {
+                val newEgresos = mapOf("Shopping" to 0.0, "Grocery" to 0.0, "Bill Payment" to 0.0, "Other" to 0.0)
+                val data = hashMapOf("Ingresos" to amount, "Egresos" to newEgresos, "user" to user)
+                transaction.set(docRef, data)
+            }
+        }.await()
+    } catch (e: Exception) {
+        Log.e("FirestoreError", "Error al guardar los datos: ", e)
+    }
+}
+
 
 // Función personalizada para Checkbox de categoría
 @Composable
@@ -260,8 +286,15 @@ fun CategoryItem(name: String, percentage: Float, color: Color) {
         Text(text = "${(percentage * 100).toInt()}%")
     }
 }
+
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun FinanceScreenPreview() {
     FinanceScreen(navController = rememberNavController())
 }
+
+e
+

@@ -101,8 +101,9 @@ dependencies {
 
     implementation(kotlin("script-runtime"))
 
-    implementation(libs.firebase.bom)
+
     implementation (libs.google.firebase.storage.ktx)
     implementation (libs.google.firebase.firestore.ktx)
+    implementation(libs.firebase.bom)
 
 }
